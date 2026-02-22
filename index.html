@@ -11,27 +11,19 @@
   <!-- ===================== EKRAN: MENU ===================== -->
   <div id="screen-menu" class="screen active">
     <div class="menu-container">
-      <h1 class="app-title">🗺️ Mapa Europy</h1>
+      <h1 class="app-title">Mapa Europy</h1>
       <p class="app-subtitle">Ćwiczenia z geografii</p>
 
       <div class="menu-card">
         <div class="menu-section">
-          <label class="section-label" for="category-select">Wybierz kategorię</label>
-          <select id="category-select" class="styled-select">
-            <option value="all">Wszystkie kategorie</option>
-            <option value="oceans">Oceany</option>
-            <option value="seas">Morza</option>
-            <option value="bays">Zatoki</option>
-            <option value="straits">Cieśniny</option>
-            <option value="channels">Kanały</option>
-            <option value="islands">Wyspy</option>
-            <option value="peninsulas">Półwyspy</option>
-            <option value="mountains">Góry</option>
-            <option value="uplands">Wyżyny</option>
-            <option value="lowlands">Niziny</option>
-            <option value="rivers">Rzeki</option>
-            <option value="lakes">Jeziora</option>
-          </select>
+          <label class="section-label">Wybierz kategorię</label>
+          <div id="category-list" class="category-list">
+            <!-- wypełniane przez JS -->
+          </div>
+        </div>
+
+        <div class="menu-stats" id="menu-stats">
+          <!-- statystyki sesji: liczba pytań itd. -->
         </div>
 
         <button class="btn-start" onclick="startQuiz()">Ćwicz!</button>
@@ -45,8 +37,11 @@
 
       <header class="quiz-header">
         <button class="btn-back" onclick="goToMenu()">← Menu</button>
-        <div class="category-badge" id="category-badge">Morza</div>
-        <button class="btn-next-header" id="btn-skip" onclick="nextQuestion()">Pomiń →</button>
+        <div class="header-center">
+          <span class="category-badge" id="q-category-badge">—</span>
+          <span class="progress-text" id="q-progress">1 / 10</span>
+        </div>
+        <button class="btn-skip" onclick="nextQuestion()">Pomiń →</button>
       </header>
 
       <div class="question-bar">
@@ -54,15 +49,20 @@
         <strong class="question-name" id="question-name">— — —</strong>
       </div>
 
-      <main class="map-area" id="map-question">
-        <div class="map-placeholder">
-          <span>Mapa Europy</span>
-          <small>(ładowana w Etapie 2)</small>
+      <main class="map-area">
+        <div class="map-wrapper">
+          <img
+            src="assets/maps/Europe_blank_map.png"
+            class="map-img"
+            alt="Mapa Europy"
+            id="map-img-question"
+          />
+          <!-- Podczas pytania marker jest ukryty -->
         </div>
       </main>
 
       <footer class="quiz-footer">
-        <p class="instruction-text">Wskaż miejsce na mapie, a potem sprawdź odpowiedź.</p>
+        <p class="instruction-text">Zastanów się, a potem sprawdź odpowiedź.</p>
         <button class="btn-reveal" onclick="showAnswer()">Pokaż odpowiedź</button>
       </footer>
 
@@ -73,10 +73,13 @@
   <div id="screen-answer" class="screen">
     <div class="quiz-layout">
 
-      <header class="quiz-header">
-        <button class="btn-back" onclick="goToMenu()">← Menu</button>
-        <div class="category-badge" id="answer-category-badge">Morza</div>
-        <div></div><!-- spacer -->
+      <header class="quiz-header answer-header">
+        <button class="btn-back btn-back-answer" onclick="goToMenu()">← Menu</button>
+        <div class="header-center">
+          <span class="category-badge answer-badge" id="a-category-badge">—</span>
+          <span class="progress-text" id="a-progress">1 / 10</span>
+        </div>
+        <div></div>
       </header>
 
       <div class="question-bar answer-bar">
@@ -84,10 +87,20 @@
         <strong class="question-name" id="answer-name">— — —</strong>
       </div>
 
-      <main class="map-area" id="map-answer">
-        <div class="map-placeholder answer-placeholder">
-          <span>Mapa z zaznaczonym obiektem</span>
-          <small>(ładowana w Etapie 3)</small>
+      <main class="map-area">
+        <div class="map-wrapper" id="map-wrapper-answer">
+          <img
+            src="assets/maps/Europe_blank_map.png"
+            class="map-img"
+            alt="Mapa Europy"
+            id="map-img-answer"
+          />
+          <!-- Marker pozycjonowany przez JS -->
+          <div class="map-marker hidden" id="map-marker">
+            <div class="marker-pulse" id="marker-pulse"></div>
+            <div class="marker-dot"  id="marker-dot"></div>
+            <div class="marker-label" id="marker-label"></div>
+          </div>
         </div>
       </main>
 
@@ -99,6 +112,7 @@
     </div>
   </div>
 
+  <script src="js/data.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

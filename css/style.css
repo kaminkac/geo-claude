@@ -1,11 +1,12 @@
 /* ============================================================
-   ZMIENNE I RESET
+   ZMIENNE
    ============================================================ */
 :root {
   --color-bg:        #f0f4ff;
-  --color-primary:   #2563eb;
-  --color-primary-h: #1d4ed8;
-  --color-answer:    #0d9488;   /* teal dla ekranu odpowiedzi */
+  --color-primary:   #1e40af;
+  --color-primary-h: #1e3a8a;
+  --color-answer:    #0f766e;
+  --color-answer-h:  #115e59;
   --color-card:      #ffffff;
   --color-text:      #1e293b;
   --color-muted:     #64748b;
@@ -16,7 +17,7 @@
   --radius-lg: 20px;
 
   --shadow:    0 4px 24px rgba(0,0,0,0.10);
-  --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
+  --shadow-sm: 0 2px 8px  rgba(0,0,0,0.08);
 
   --font: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
 }
@@ -29,12 +30,13 @@ html, body {
   background: var(--color-bg);
   color: var(--color-text);
   font-size: 18px;
+  overflow: hidden;
 }
 
 /* ============================================================
    SYSTEM EKRANÓW
    ============================================================ */
-.screen { display: none; width: 100%; min-height: 100vh; }
+.screen { display: none; width: 100%; height: 100vh; }
 .screen.active { display: flex; }
 
 /* ============================================================
@@ -43,12 +45,13 @@ html, body {
 #screen-menu {
   align-items: center;
   justify-content: center;
-  padding: 32px 16px;
+  padding: 24px 16px;
+  overflow-y: auto;
 }
 
 .menu-container {
   width: 100%;
-  max-width: 480px;
+  max-width: 520px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -56,14 +59,14 @@ html, body {
 }
 
 .app-title {
-  font-size: 2.6rem;
+  font-size: 2.4rem;
   font-weight: 800;
   color: var(--color-primary);
   text-align: center;
 }
 
 .app-subtitle {
-  font-size: 1.05rem;
+  font-size: 1rem;
   color: var(--color-muted);
   text-align: center;
   margin-top: -12px;
@@ -73,53 +76,85 @@ html, body {
   background: var(--color-card);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
-  padding: 32px;
+  padding: 28px;
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 22px;
 }
 
-.menu-section {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
+.menu-section { display: flex; flex-direction: column; gap: 10px; }
 
 .section-label {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--color-muted);
 }
 
-/* Select */
-.styled-select {
-  width: 100%;
-  padding: 14px 16px;
-  font-size: 1.05rem;
-  font-family: var(--font);
-  border: 2px solid var(--color-border);
+/* Lista kategorii */
+.category-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.cat-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
   border-radius: var(--radius-md);
-  background: #fff
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")
-    no-repeat right 14px center;
-  appearance: none;
-  color: var(--color-text);
+  border: 2px solid var(--color-border);
   cursor: pointer;
-  transition: border-color 0.2s;
+  user-select: none;
+  transition: border-color 0.15s, background 0.15s;
+  font-size: 0.95rem;
+  font-weight: 500;
+  background: #fff;
 }
-.styled-select:focus {
-  outline: none;
+
+.cat-option:hover { background: #f8fafc; }
+
+.cat-option.selected {
+  border-color: var(--cat-color, var(--color-primary));
+  background: color-mix(in srgb, var(--cat-color, var(--color-primary)) 8%, white);
+}
+
+.cat-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--cat-color, var(--color-primary));
+  flex-shrink: 0;
+}
+
+.cat-all {
+  grid-column: 1 / -1;
+  font-weight: 700;
+  color: var(--color-primary);
   border-color: var(--color-primary);
+  background: #eff6ff;
 }
+.cat-all.selected { background: #dbeafe; }
+
+/* Statystyki sesji */
+.menu-stats {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  font-size: 0.9rem;
+  color: var(--color-muted);
+  min-height: 20px;
+}
+.stat-item strong { color: var(--color-text); }
 
 /* Przycisk Start */
 .btn-start {
   width: 100%;
   padding: 18px;
-  font-size: 1.3rem;
+  font-size: 1.25rem;
   font-family: var(--font);
   font-weight: 700;
   background: var(--color-primary);
@@ -134,18 +169,18 @@ html, body {
 .btn-start:active { transform: scale(0.98); }
 
 /* ============================================================
-   LAYOUT QUIZU (wspólny dla pytania i odpowiedzi)
+   LAYOUT QUIZU
    ============================================================ */
 #screen-question,
 #screen-answer {
   flex-direction: column;
-  height: 100vh;
 }
 
 .quiz-layout {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: 100vh;
+  overflow: hidden;
 }
 
 /* Nagłówek */
@@ -153,15 +188,26 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 20px;
+  padding: 10px 16px;
   background: var(--color-card);
   box-shadow: var(--shadow-sm);
   flex-shrink: 0;
+  gap: 10px;
+}
+
+.answer-header { background: #f0fdf4; }
+
+.header-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
 }
 
 .btn-back {
-  padding: 8px 14px;
-  font-size: 0.9rem;
+  padding: 7px 12px;
+  font-size: 0.85rem;
   font-family: var(--font);
   font-weight: 600;
   background: transparent;
@@ -171,23 +217,33 @@ html, body {
   cursor: pointer;
   transition: background 0.15s;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 .btn-back:hover { background: #eff6ff; }
+.btn-back-answer { color: var(--color-answer); border-color: var(--color-answer); }
+.btn-back-answer:hover { background: #f0fdf4; }
 
 .category-badge {
-  background: #eff6ff;
-  color: var(--color-primary);
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   font-weight: 700;
-  padding: 5px 14px;
+  padding: 3px 12px;
   border-radius: 999px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
+  background: #eff6ff;
+  color: var(--color-primary);
+}
+.answer-badge { background: #d1fae5; color: var(--color-answer); }
+
+.progress-text {
+  font-size: 0.75rem;
+  color: var(--color-muted);
+  font-weight: 500;
 }
 
-.btn-next-header {
-  padding: 8px 14px;
-  font-size: 0.9rem;
+.btn-skip {
+  padding: 7px 12px;
+  font-size: 0.85rem;
   font-family: var(--font);
   font-weight: 600;
   background: transparent;
@@ -197,15 +253,13 @@ html, body {
   cursor: pointer;
   transition: color 0.15s, border-color 0.15s;
   white-space: nowrap;
+  flex-shrink: 0;
 }
-.btn-next-header:hover {
-  color: var(--color-text);
-  border-color: var(--color-text);
-}
+.btn-skip:hover { color: var(--color-text); border-color: #94a3b8; }
 
 /* Pasek pytania */
 .question-bar {
-  padding: 16px 24px;
+  padding: 14px 20px;
   background: var(--color-primary);
   color: #fff;
   display: flex;
@@ -213,13 +267,10 @@ html, body {
   gap: 2px;
   flex-shrink: 0;
 }
-
-.answer-bar {
-  background: var(--color-answer);
-}
+.answer-bar { background: var(--color-answer); }
 
 .question-prefix {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -227,45 +278,113 @@ html, body {
 }
 
 .question-name {
-  font-size: 1.6rem;
+  font-size: 1.55rem;
   font-weight: 800;
   line-height: 1.2;
 }
 
-/* Obszar mapy */
+/* ============================================================
+   OBSZAR MAPY
+   ============================================================ */
 .map-area {
   flex: 1;
   overflow: hidden;
-  position: relative;
-  background: #dbeafe;
+  background: #c8d8f0;
   display: flex;
-  align-items: stretch;
+  align-items: center;
+  justify-content: center;
 }
 
-.map-placeholder {
-  flex: 1;
+.map-wrapper {
+  position: relative;
+  max-width: 100%;
+  max-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.map-img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* ============================================================
+   MARKER NA MAPIE
+   ============================================================ */
+.map-marker {
+  position: absolute;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  color: var(--color-muted);
-  font-size: 1.1rem;
-}
-.map-placeholder small {
-  font-size: 0.85rem;
-  opacity: 0.7;
+  gap: 4px;
+  pointer-events: none;
+  /* transform centruje marker na współrzędnych (x,y) */
+  transform: translate(-50%, -50%);
 }
 
-.answer-placeholder {
-  background: #ccfbf1;
-  color: #0f766e;
+.map-marker.hidden { display: none; }
+
+/* Pulsująca animacja tła */
+.marker-pulse {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(var(--marker-rgb, 30,64,175), 0.25);
+  animation: pulse 1.8s ease-out infinite;
 }
 
-/* Stopka */
+@keyframes pulse {
+  0%   { transform: scale(0.8); opacity: 1; }
+  70%  { transform: scale(2.2); opacity: 0; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+/* Wypełniony punkt */
+.marker-dot {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--marker-color, #1e40af);
+  border: 3px solid #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+  z-index: 1;
+}
+
+/* Etykieta z nazwą */
+.marker-label {
+  position: relative;
+  z-index: 1;
+  background: var(--marker-color, #1e40af);
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+  letter-spacing: 0.01em;
+  margin-top: 2px;
+  animation: label-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes label-pop {
+  from { transform: scale(0.6); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+/* ============================================================
+   STOPKA
+   ============================================================ */
 .quiz-footer {
   flex-shrink: 0;
-  padding: 16px 24px;
+  padding: 14px 20px;
   background: var(--color-card);
   border-top: 2px solid var(--color-border);
   display: flex;
@@ -274,18 +393,19 @@ html, body {
   align-items: center;
 }
 
+.answer-footer { border-top-color: #a7f3d0; background: #f0fdf4; }
+
 .instruction-text {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   color: var(--color-muted);
   text-align: center;
 }
 
-/* Przycisk "Pokaż odpowiedź" */
 .btn-reveal {
   width: 100%;
   max-width: 420px;
-  padding: 16px;
-  font-size: 1.2rem;
+  padding: 15px;
+  font-size: 1.15rem;
   font-family: var(--font);
   font-weight: 700;
   background: var(--color-primary);
@@ -298,14 +418,11 @@ html, body {
 .btn-reveal:hover  { background: var(--color-primary-h); }
 .btn-reveal:active { transform: scale(0.98); }
 
-/* Stopka odpowiedzi */
-.answer-footer { gap: 12px; }
-
 .btn-next {
   width: 100%;
   max-width: 420px;
-  padding: 16px;
-  font-size: 1.2rem;
+  padding: 15px;
+  font-size: 1.15rem;
   font-family: var(--font);
   font-weight: 700;
   background: var(--color-answer);
@@ -315,14 +432,14 @@ html, body {
   cursor: pointer;
   transition: background 0.18s, transform 0.1s;
 }
-.btn-next:hover  { background: #0f766e; }
+.btn-next:hover  { background: var(--color-answer-h); }
 .btn-next:active { transform: scale(0.98); }
 
 .btn-secondary {
   width: 100%;
   max-width: 420px;
-  padding: 12px;
-  font-size: 1rem;
+  padding: 10px;
+  font-size: 0.95rem;
   font-family: var(--font);
   font-weight: 600;
   background: transparent;
@@ -332,15 +449,22 @@ html, body {
   cursor: pointer;
   transition: background 0.15s;
 }
-.btn-secondary:hover { background: var(--color-bg); }
+.btn-secondary:hover { background: #f1f5f9; }
 
 /* ============================================================
    RESPONSYWNOŚĆ
    ============================================================ */
 @media (max-width: 480px) {
-  .app-title     { font-size: 2rem; }
-  .menu-card     { padding: 24px 18px; }
-  .question-name { font-size: 1.3rem; }
+  .app-title       { font-size: 1.9rem; }
+  .menu-card       { padding: 20px 14px; }
+  .category-list   { grid-template-columns: 1fr; }
+  .question-name   { font-size: 1.25rem; }
   .btn-reveal,
-  .btn-next      { font-size: 1.05rem; padding: 14px; }
+  .btn-next        { font-size: 1rem; padding: 13px; }
+  .marker-label    { font-size: 11px; padding: 3px 8px; }
+}
+
+@media (min-width: 900px) {
+  .menu-card { padding: 36px 40px; }
+  .question-name { font-size: 1.85rem; }
 }
