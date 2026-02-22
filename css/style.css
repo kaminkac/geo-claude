@@ -172,11 +172,13 @@ html, body {
    LAYOUT QUIZU
    ============================================================ */
 #screen-question,
-#screen-answer { flex-direction: column; }
+#screen-answer,
+#screen-quiz { flex-direction: column; }
 
 .quiz-layout {
   display: flex;
   flex-direction: column;
+  width: 100%;
   height: 100vh;
   overflow: hidden;
 }
