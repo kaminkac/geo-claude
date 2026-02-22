@@ -192,7 +192,7 @@ const CATEGORIES = [
       { id: 'ebro',         name: 'Ebro',     x: 28.8, y: 71.4 },
       { id: 'douro',        name: 'Duero',    x: 21.3, y: 73.8 },
       { id: 'tagus',        name: 'Tag',      x: 18.8, y: 76.2 },
-      { id: 'dniester',     name: 'Dniestr',  x: 67.5, y: 59.5 },
+      { id: 'dniester',     name: 'Dniestr',  x: 66.3, y: 65.5 },
     ],
   },
 

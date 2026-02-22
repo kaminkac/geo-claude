@@ -166,75 +166,14 @@ function nextQuestion() {
 // POKAŻ ODPOWIEDŹ
 // ============================================================
 function showAnswer() {
+  // Załaduj pre-wygenerowany obrazek z zaznaczonym miejscem
+  const img = document.getElementById('map-img-answer');
+  img.src = `assets/maps/answers/${state.current.id}.png`;
   showScreen('screen-answer');
-  requestAnimationFrame(() => placeMarker(state.current));
-}
-
-// ============================================================
-// MARKER NA MAPIE
-// ============================================================
-function placeMarker(item) {
-  const marker  = document.getElementById('map-marker');
-  const dot     = document.getElementById('marker-dot');
-  const pulse   = document.getElementById('marker-pulse');
-  const label   = document.getElementById('marker-label');
-  const img     = document.getElementById('map-img-answer');
-  const wrapper = document.getElementById('map-wrapper-answer');
-
-  // Ustaw kolor markera z danych kategorii
-  const color = item.color || '#1e40af';
-  const rgb   = item.rgb   || '30,64,175';
-  marker.style.setProperty('--marker-color', color);
-  marker.style.setProperty('--marker-rgb',   rgb);
-
-  label.textContent = item.name;
-
-  // Oblicz pozycję na podstawie rendered rozmiaru obrazu
-  // Używamy naturalnego rozmiaru obrazu i rozmiaru kontenera
-  const imgRect     = img.getBoundingClientRect();
-  const wrapperRect = wrapper.getBoundingClientRect();
-
-  const naturalW = img.naturalWidth  || imgRect.width;
-  const naturalH = img.naturalHeight || imgRect.height;
-  const aspect   = naturalW / naturalH;
-
-  // Faktycznie renderowany obszar obrazu (object-fit: contain)
-  let rendW, rendH, rendLeft, rendTop;
-  if (imgRect.width / imgRect.height > aspect) {
-    // słupki pionowe (pillarbox)
-    rendH    = imgRect.height;
-    rendW    = rendH * aspect;
-    rendLeft = (imgRect.width - rendW) / 2;
-    rendTop  = 0;
-  } else {
-    // słupki poziome (letterbox)
-    rendW    = imgRect.width;
-    rendH    = rendW / aspect;
-    rendLeft = 0;
-    rendTop  = (imgRect.height - rendH) / 2;
-  }
-
-  // Pozycja markera w pikselach względem wrappera
-  const markerX = rendLeft + (item.x / 100) * rendW;
-  const markerY = rendTop  + (item.y / 100) * rendH;
-
-  // Korekta na offset wrappera vs obrazu
-  const offsetX = imgRect.left - wrapperRect.left;
-  const offsetY = imgRect.top  - wrapperRect.top;
-
-  marker.style.left = (offsetX + markerX) + 'px';
-  marker.style.top  = (offsetY + markerY) + 'px';
-
-  // Restart animacji pulsu
-  pulse.style.animation = 'none';
-  void pulse.offsetWidth;
-  pulse.style.animation = '';
-
-  marker.classList.remove('hidden');
 }
 
 function hideMarker() {
-  document.getElementById('map-marker').classList.add('hidden');
+  // Zostawione dla kompatybilności — marker jest teraz wbudowany w obrazek
 }
 
 // ============================================================
