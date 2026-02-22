@@ -35,36 +35,29 @@
   <div id="screen-question" class="screen">
     <div class="quiz-layout">
 
-      <header class="quiz-header">
-        <button class="btn-back" onclick="goToMenu()">← Menu</button>
-        <div class="header-center">
-          <span class="category-badge" id="q-category-badge">—</span>
-          <span class="progress-text" id="q-progress">1 / 10</span>
+      <div class="quiz-panel">
+        <div class="panel-top">
+          <button class="btn-sm" onclick="goToMenu()">← Menu</button>
+          <div class="panel-meta">
+            <span class="cat-pill" id="q-category-badge">—</span>
+            <span class="prog-text" id="q-progress">1/10</span>
+          </div>
+          <button class="btn-sm btn-muted" onclick="nextQuestion()">Pomiń →</button>
         </div>
-        <button class="btn-skip" onclick="nextQuestion()">Pomiń →</button>
-      </header>
-
-      <div class="question-bar">
-        <span class="question-prefix">Gdzie znajduje się:</span>
-        <strong class="question-name" id="question-name">— — —</strong>
+        <div class="panel-bottom">
+          <div class="q-text">
+            <span class="q-prefix">Gdzie jest:</span>
+            <strong class="q-name" id="question-name">— — —</strong>
+          </div>
+          <button class="btn-action" onclick="showAnswer()">Pokaż</button>
+        </div>
       </div>
 
       <main class="map-area">
         <div class="map-wrapper">
-          <img
-            src="assets/maps/Europe_blank_map.png"
-            class="map-img"
-            alt="Mapa Europy"
-            id="map-img-question"
-          />
-          <!-- Podczas pytania marker jest ukryty -->
+          <img src="assets/maps/Europe_blank_map.png" class="map-img" alt="Mapa Europy" id="map-img-question" />
         </div>
       </main>
-
-      <footer class="quiz-footer">
-        <p class="instruction-text">Zastanów się, a potem sprawdź odpowiedź.</p>
-        <button class="btn-reveal" onclick="showAnswer()">Pokaż odpowiedź</button>
-      </footer>
 
     </div>
   </div>
@@ -73,29 +66,30 @@
   <div id="screen-answer" class="screen">
     <div class="quiz-layout">
 
-      <header class="quiz-header answer-header">
-        <button class="btn-back btn-back-answer" onclick="goToMenu()">← Menu</button>
-        <div class="header-center">
-          <span class="category-badge answer-badge" id="a-category-badge">—</span>
-          <span class="progress-text" id="a-progress">1 / 10</span>
+      <div class="quiz-panel quiz-panel-answer">
+        <div class="panel-top">
+          <button class="btn-sm" onclick="goToMenu()">← Menu</button>
+          <div class="panel-meta">
+            <span class="cat-pill" id="a-category-badge">—</span>
+            <span class="prog-text" id="a-progress">1/10</span>
+          </div>
+          <div></div>
         </div>
-        <div></div>
-      </header>
-
-      <div class="question-bar answer-bar">
-        <span class="question-prefix">Odpowiedź:</span>
-        <strong class="question-name" id="answer-name">— — —</strong>
+        <div class="panel-bottom">
+          <div class="q-text">
+            <span class="q-prefix">Odpowiedź:</span>
+            <strong class="q-name" id="answer-name">— — —</strong>
+          </div>
+          <div class="answer-btns">
+            <button class="btn-action" onclick="nextQuestion()">Następne →</button>
+            <button class="btn-sm" onclick="goToMenu()">Zmień</button>
+          </div>
+        </div>
       </div>
 
       <main class="map-area">
         <div class="map-wrapper" id="map-wrapper-answer">
-          <img
-            src="assets/maps/Europe_blank_map.png"
-            class="map-img"
-            alt="Mapa Europy"
-            id="map-img-answer"
-          />
-          <!-- Marker pozycjonowany przez JS -->
+          <img src="assets/maps/Europe_blank_map.png" class="map-img" alt="Mapa Europy" id="map-img-answer" />
           <div class="map-marker hidden" id="map-marker">
             <div class="marker-pulse" id="marker-pulse"></div>
             <div class="marker-dot"  id="marker-dot"></div>
@@ -103,11 +97,6 @@
           </div>
         </div>
       </main>
-
-      <footer class="quiz-footer answer-footer">
-        <button class="btn-next" onclick="nextQuestion()">Następne pytanie →</button>
-        <button class="btn-secondary" onclick="goToMenu()">Zmień kategorię</button>
-      </footer>
 
     </div>
   </div>
