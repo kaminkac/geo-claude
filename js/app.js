@@ -189,6 +189,7 @@ function nextQuestion() {
 
   // Uzupełnij też panel odpowiedzi (na zapas)
   document.getElementById('answer-name').textContent      = state.current.name;
+  document.getElementById('answer-country').textContent   = state.current.country ? `(${state.current.country})` : '';
   document.getElementById('a-category-badge').textContent = state.current.categoryName;
   document.getElementById('a-progress').textContent       = progress;
 
