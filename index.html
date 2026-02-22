@@ -8,17 +8,15 @@
 </head>
 <body>
 
-  <!-- ===================== EKRAN: MENU GŁÓWNE ===================== -->
+  <!-- ===================== EKRAN: MENU ===================== -->
   <div id="screen-menu" class="screen active">
     <div class="menu-container">
       <h1 class="app-title">🗺️ Mapa Europy</h1>
-      <p class="app-subtitle">Quiz geograficzny</p>
+      <p class="app-subtitle">Ćwiczenia z geografii</p>
 
       <div class="menu-card">
-
-        <!-- Wybór kategorii -->
         <div class="menu-section">
-          <label class="section-label" for="category-select">Kategoria</label>
+          <label class="section-label" for="category-select">Wybierz kategorię</label>
           <select id="category-select" class="styled-select">
             <option value="all">Wszystkie kategorie</option>
             <option value="oceans">Oceany</option>
@@ -36,99 +34,68 @@
           </select>
         </div>
 
-        <!-- Wybór poziomu trudności -->
-        <div class="menu-section">
-          <span class="section-label">Poziom trudności</span>
-          <div class="btn-group" id="difficulty-group">
-            <button class="btn-toggle active" data-value="easy" onclick="selectDifficulty(this)">
-              🟢 Łatwy
-            </button>
-            <button class="btn-toggle" data-value="hard" onclick="selectDifficulty(this)">
-              🔴 Trudny
-            </button>
-          </div>
-          <p class="hint" id="difficulty-hint">
-            Elementy kategorii są zaznaczone na mapie — kliknij właściwy.
-          </p>
-        </div>
-
-        <!-- Wybór trybu gry -->
-        <div class="menu-section">
-          <span class="section-label">Tryb gry</span>
-          <div class="btn-group" id="mode-group">
-            <button class="btn-toggle active" data-value="endless" onclick="selectMode(this)">
-              ♾️ Ciągły
-            </button>
-            <button class="btn-toggle" data-value="ten" onclick="selectMode(this)">
-              🔟 Do 10 pytań
-            </button>
-          </div>
-        </div>
-
-        <!-- Przycisk Start -->
-        <button class="btn-start" onclick="startGame()">
-          Zagraj!
-        </button>
-
+        <button class="btn-start" onclick="startQuiz()">Ćwicz!</button>
       </div>
     </div>
   </div>
 
-  <!-- ===================== EKRAN: GRA ===================== -->
-  <div id="screen-game" class="screen">
-    <div class="game-layout">
+  <!-- ===================== EKRAN: PYTANIE ===================== -->
+  <div id="screen-question" class="screen">
+    <div class="quiz-layout">
 
-      <!-- Pasek górny -->
-      <header class="game-header">
+      <header class="quiz-header">
         <button class="btn-back" onclick="goToMenu()">← Menu</button>
-        <div class="question-box">
-          <span class="question-label">Wskaż na mapie:</span>
-          <span class="question-text" id="question-text">— — —</span>
-        </div>
-        <div class="score-box">
-          <span class="score-label">Punkty</span>
-          <span class="score-value" id="score-value">0</span>
-          <span class="score-progress" id="score-progress"></span>
-        </div>
+        <div class="category-badge" id="category-badge">Morza</div>
+        <button class="btn-next-header" id="btn-skip" onclick="nextQuestion()">Pomiń →</button>
       </header>
 
-      <!-- Obszar mapy -->
-      <main class="map-area" id="map-area">
+      <div class="question-bar">
+        <span class="question-prefix">Gdzie znajduje się:</span>
+        <strong class="question-name" id="question-name">— — —</strong>
+      </div>
+
+      <main class="map-area" id="map-question">
         <div class="map-placeholder">
-          <p>Mapa zostanie załadowana w Etapie 2</p>
+          <span>Mapa Europy</span>
+          <small>(ładowana w Etapie 2)</small>
         </div>
       </main>
 
-      <!-- Pasek dolny: feedback -->
-      <div class="feedback-bar" id="feedback-bar">
-        <span id="feedback-text"></span>
-      </div>
+      <footer class="quiz-footer">
+        <p class="instruction-text">Wskaż miejsce na mapie, a potem sprawdź odpowiedź.</p>
+        <button class="btn-reveal" onclick="showAnswer()">Pokaż odpowiedź</button>
+      </footer>
 
     </div>
   </div>
 
-  <!-- ===================== EKRAN: WYNIKI (tryb "Do 10") ===================== -->
-  <div id="screen-results" class="screen">
-    <div class="results-container">
-      <div class="results-card">
-        <h2 class="results-title">Koniec gry!</h2>
+  <!-- ===================== EKRAN: ODPOWIEDŹ ===================== -->
+  <div id="screen-answer" class="screen">
+    <div class="quiz-layout">
 
-        <div class="results-score-display">
-          <span class="results-score" id="results-score">0</span>
-          <span class="results-max">/ 10</span>
-        </div>
+      <header class="quiz-header">
+        <button class="btn-back" onclick="goToMenu()">← Menu</button>
+        <div class="category-badge" id="answer-category-badge">Morza</div>
+        <div></div><!-- spacer -->
+      </header>
 
-        <p class="results-message" id="results-message">Dobra robota!</p>
-
-        <div class="results-buttons">
-          <button class="btn-start" onclick="playAgain()">
-            Zagraj jeszcze raz
-          </button>
-          <button class="btn-secondary" onclick="goToMenu()">
-            Zmień ustawienia
-          </button>
-        </div>
+      <div class="question-bar answer-bar">
+        <span class="question-prefix">Odpowiedź:</span>
+        <strong class="question-name" id="answer-name">— — —</strong>
       </div>
+
+      <main class="map-area" id="map-answer">
+        <div class="map-placeholder answer-placeholder">
+          <span>Mapa z zaznaczonym obiektem</span>
+          <small>(ładowana w Etapie 3)</small>
+        </div>
+      </main>
+
+      <footer class="quiz-footer answer-footer">
+        <button class="btn-next" onclick="nextQuestion()">Następne pytanie →</button>
+        <button class="btn-secondary" onclick="goToMenu()">Zmień kategorię</button>
+      </footer>
+
     </div>
   </div>
 
