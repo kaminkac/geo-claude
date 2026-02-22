@@ -1,17 +1,53 @@
 /**
- * app.js — pełna logika quizu geograficznego
+ * app.js — logika quizu geograficznego z mapą Leaflet
  */
 
 // ============================================================
 // STAN APLIKACJI
 // ============================================================
 const state = {
-  selectedCategories: ['all'],  // 'all' lub lista id kategorii
-  items: [],        // pula pytań bieżącej sesji
-  usedIds: [],      // już pokazane w tej rundzie
-  current: null,    // aktualny obiekt
-  sessionCount: 0,  // ile pytań pokazano w tej sesji
+  selectedCategories: ['all'],
+  items:        [],
+  usedIds:      [],
+  current:      null,
+  sessionCount: 0,
+  quizMode:     'question',   // 'question' | 'answer'
 };
+
+// ============================================================
+// MAPA LEAFLET
+// ============================================================
+let map = null;
+let answerMarker = null;
+
+// Widok domyślny — cała Europa
+const EUROPE_CENTER = [54, 16];
+const EUROPE_ZOOM   = 4;
+
+function initMap() {
+  if (map) return;
+
+  map = L.map('quiz-map', {
+    center:         EUROPE_CENTER,
+    zoom:           EUROPE_ZOOM,
+    minZoom:        3,
+    maxZoom:        10,
+    zoomControl:    true,
+    attributionControl: true,
+  });
+
+  // CartoDB Positron bez etykiet — czysta mapa konturowa
+  L.tileLayer(
+    'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',
+    {
+      attribution:
+        '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors ' +
+        '© <a href="https://carto.com/attributions">CARTO</a>',
+      subdomains: 'abcd',
+      maxZoom: 20,
+    }
+  ).addTo(map);
+}
 
 // ============================================================
 // INICJALIZACJA MENU
@@ -20,11 +56,9 @@ function initMenu() {
   const list = document.getElementById('category-list');
   list.innerHTML = '';
 
-  // Opcja "Wszystkie"
   const allBtn = createCatOption('all', 'Wszystkie kategorie', null, true);
   list.appendChild(allBtn);
 
-  // Opcja dla każdej kategorii
   CATEGORIES.forEach(cat => {
     const btn = createCatOption(cat.id, cat.name, cat.color, false);
     list.appendChild(btn);
@@ -45,9 +79,7 @@ function createCatOption(id, name, color, isAll) {
     div.appendChild(dot);
   }
 
-  const label = document.createTextNode(name);
-  div.appendChild(label);
-
+  div.appendChild(document.createTextNode(name));
   div.addEventListener('click', () => toggleCategory(id));
   return div;
 }
@@ -56,38 +88,30 @@ function toggleCategory(id) {
   if (id === 'all') {
     state.selectedCategories = ['all'];
   } else {
-    // Odznacz 'all', gdy wybrano konkretną kategorię
     state.selectedCategories = state.selectedCategories.filter(c => c !== 'all');
-
     if (state.selectedCategories.includes(id)) {
       state.selectedCategories = state.selectedCategories.filter(c => c !== id);
     } else {
       state.selectedCategories.push(id);
     }
-
-    // Jeśli nic nie zaznaczone → wróć do 'all'
     if (state.selectedCategories.length === 0) {
       state.selectedCategories = ['all'];
     }
   }
 
-  // Zaktualizuj wygląd przycisków
   document.querySelectorAll('.cat-option').forEach(btn => {
     const cid = btn.dataset.catId;
-    const isSelected =
-      state.selectedCategories.includes('all')
-        ? cid === 'all'
-        : state.selectedCategories.includes(cid);
-    btn.classList.toggle('selected', isSelected);
+    const selected = state.selectedCategories.includes('all')
+      ? cid === 'all'
+      : state.selectedCategories.includes(cid);
+    btn.classList.toggle('selected', selected);
   });
 }
 
 function renderMenuStats() {
   const el = document.getElementById('menu-stats');
   if (state.sessionCount === 0) { el.innerHTML = ''; return; }
-  el.innerHTML = `
-    <span class="stat-item">Sesja: <strong>${state.sessionCount}</strong> pytań</span>
-  `;
+  el.innerHTML = `<span class="stat-item">Sesja: <strong>${state.sessionCount}</strong> pytań</span>`;
 }
 
 // ============================================================
@@ -96,9 +120,15 @@ function renderMenuStats() {
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+
+  // Poinformuj Leaflet o zmianie rozmiaru kontenera
+  if (id === 'screen-quiz' && map) {
+    setTimeout(() => map.invalidateSize(), 50);
+  }
 }
 
 function goToMenu() {
+  clearMarker();
   renderMenuStats();
   showScreen('screen-menu');
 }
@@ -107,16 +137,15 @@ function goToMenu() {
 // START QUIZU
 // ============================================================
 function startQuiz() {
-  // Zbuduj pulę pytań
   if (state.selectedCategories.includes('all')) {
     state.items = CATEGORIES.flatMap(cat =>
-      cat.items.map(it => ({ ...it, categoryId: cat.id, categoryName: cat.name, color: cat.color, rgb: cat.rgb }))
+      cat.items.map(it => ({ ...it, categoryId: cat.id, categoryName: cat.name, color: cat.color, rgb: cat.rgb, zoom: cat.zoom }))
     );
   } else {
     state.items = CATEGORIES
       .filter(cat => state.selectedCategories.includes(cat.id))
       .flatMap(cat =>
-        cat.items.map(it => ({ ...it, categoryId: cat.id, categoryName: cat.name, color: cat.color, rgb: cat.rgb }))
+        cat.items.map(it => ({ ...it, categoryId: cat.id, categoryName: cat.name, color: cat.color, rgb: cat.rgb, zoom: cat.zoom }))
       );
   }
 
@@ -126,14 +155,19 @@ function startQuiz() {
   }
 
   state.usedIds = [];
-  nextQuestion();
+
+  // Inicjalizuj mapę przy pierwszym uruchomieniu
+  showScreen('screen-quiz');
+  setTimeout(() => {
+    initMap();
+    nextQuestion();
+  }, 50);
 }
 
 // ============================================================
 // LOSOWANIE PYTANIA
 // ============================================================
 function pickRandom() {
-  // Reset puli gdy wszystkie pokazano
   if (state.usedIds.length >= state.items.length) {
     state.usedIds = [];
   }
@@ -148,32 +182,91 @@ function nextQuestion() {
 
   const progress = `${state.usedIds.length} / ${state.items.length}`;
 
-  document.getElementById('question-name').textContent     = state.current.name;
-  document.getElementById('q-category-badge').textContent  = state.current.categoryName;
-  document.getElementById('q-progress').textContent        = progress;
+  // Uzupełnij panel pytania
+  document.getElementById('question-name').textContent    = state.current.name;
+  document.getElementById('q-category-badge').textContent = state.current.categoryName;
+  document.getElementById('q-progress').textContent       = progress;
 
-  document.getElementById('answer-name').textContent       = state.current.name;
-  document.getElementById('a-category-badge').textContent  = state.current.categoryName;
-  document.getElementById('a-progress').textContent        = progress;
+  // Uzupełnij też panel odpowiedzi (na zapas)
+  document.getElementById('answer-name').textContent      = state.current.name;
+  document.getElementById('a-category-badge').textContent = state.current.categoryName;
+  document.getElementById('a-progress').textContent       = progress;
 
-  // Ukryj marker (na wypadek gdyby był widoczny z poprzedniej odpowiedzi)
-  hideMarker();
-
-  showScreen('screen-question');
+  setQuizMode('question');
 }
 
 // ============================================================
 // POKAŻ ODPOWIEDŹ
 // ============================================================
 function showAnswer() {
-  // Załaduj pre-wygenerowany obrazek z zaznaczonym miejscem
-  const img = document.getElementById('map-img-answer');
-  img.src = `assets/maps/answers/${state.current.id}.png`;
-  showScreen('screen-answer');
+  setQuizMode('answer');
+  placeMarker(state.current);
 }
 
-function hideMarker() {
-  // Zostawione dla kompatybilności — marker jest teraz wbudowany w obrazek
+// ============================================================
+// TRYB PANELU: question / answer
+// ============================================================
+function setQuizMode(mode) {
+  state.quizMode = mode;
+
+  const panel   = document.getElementById('quiz-panel');
+  const pQ      = document.getElementById('panel-question');
+  const pA      = document.getElementById('panel-answer');
+
+  if (mode === 'question') {
+    panel.classList.remove('quiz-panel-answer');
+    pQ.classList.remove('hidden');
+    pA.classList.add('hidden');
+    clearMarker();
+    if (map) map.flyTo(EUROPE_CENTER, EUROPE_ZOOM, { duration: 0.6 });
+  } else {
+    panel.classList.add('quiz-panel-answer');
+    pQ.classList.add('hidden');
+    pA.classList.remove('hidden');
+  }
+}
+
+// ============================================================
+// MARKER NA MAPIE LEAFLET
+// ============================================================
+function placeMarker(item) {
+  clearMarker();
+
+  const color = item.color || '#1e40af';
+  const zoom  = item.zoom  || 5;
+
+  // Niestandardowa ikona — kolorowa kropka
+  const icon = L.divIcon({
+    html: `<div style="
+      width: 18px; height: 18px; border-radius: 50%;
+      background: ${color};
+      border: 3px solid #fff;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.45);
+    "></div>`,
+    className: '',
+    iconSize:   [18, 18],
+    iconAnchor: [9, 9],
+    tooltipAnchor: [9, -9],
+  });
+
+  answerMarker = L.marker([item.lat, item.lon], { icon })
+    .addTo(map)
+    .bindTooltip(item.name, {
+      permanent:  true,
+      direction:  'top',
+      offset:     [0, -4],
+      className:  'map-tooltip',
+    })
+    .openTooltip();
+
+  map.flyTo([item.lat, item.lon], zoom, { duration: 0.8 });
+}
+
+function clearMarker() {
+  if (answerMarker) {
+    map.removeLayer(answerMarker);
+    answerMarker = null;
+  }
 }
 
 // ============================================================
@@ -181,6 +274,5 @@ function hideMarker() {
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
   initMenu();
-  // Domyślnie zaznacz "Wszystkie"
   document.querySelector('.cat-option[data-cat-id="all"]').classList.add('selected');
 });

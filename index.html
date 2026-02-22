@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mapa Europy — Quiz Geograficzny</title>
+  <!-- Leaflet.js -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
@@ -23,7 +26,7 @@
         </div>
 
         <div class="menu-stats" id="menu-stats">
-          <!-- statystyki sesji: liczba pytań itd. -->
+          <!-- statystyki sesji -->
         </div>
 
         <button class="btn-start" onclick="startQuiz()">Ćwicz!</button>
@@ -31,71 +34,59 @@
     </div>
   </div>
 
-  <!-- ===================== EKRAN: PYTANIE ===================== -->
-  <div id="screen-question" class="screen">
+  <!-- ===================== EKRAN: QUIZ (pytanie + odpowiedź) ===================== -->
+  <div id="screen-quiz" class="screen">
     <div class="quiz-layout">
 
-      <div class="quiz-panel">
-        <div class="panel-top">
-          <button class="btn-sm" onclick="goToMenu()">← Menu</button>
-          <div class="panel-meta">
-            <span class="cat-pill" id="q-category-badge">—</span>
-            <span class="prog-text" id="q-progress">1/10</span>
-          </div>
-          <button class="btn-sm btn-muted" onclick="nextQuestion()">Pomiń →</button>
-        </div>
-        <div class="panel-bottom">
-          <div class="q-text">
-            <span class="q-prefix">Gdzie jest:</span>
-            <strong class="q-name" id="question-name">— — —</strong>
-          </div>
-          <button class="btn-action" onclick="showAnswer()">Pokaż</button>
-        </div>
-      </div>
+      <!-- Panel sterowania — zmienia stan: pytanie / odpowiedź -->
+      <div class="quiz-panel" id="quiz-panel">
 
+        <!-- Stan: pytanie -->
+        <div id="panel-question">
+          <div class="panel-top">
+            <button class="btn-sm" onclick="goToMenu()">← Menu</button>
+            <div class="panel-meta">
+              <span class="cat-pill" id="q-category-badge">—</span>
+              <span class="prog-text" id="q-progress">1/10</span>
+            </div>
+            <button class="btn-sm btn-muted" onclick="nextQuestion()">Pomiń →</button>
+          </div>
+          <div class="panel-bottom">
+            <div class="q-text">
+              <span class="q-prefix">Gdzie jest:</span>
+              <strong class="q-name" id="question-name">— — —</strong>
+            </div>
+            <button class="btn-action" onclick="showAnswer()">Pokaż</button>
+          </div>
+        </div>
+
+        <!-- Stan: odpowiedź -->
+        <div id="panel-answer" class="hidden">
+          <div class="panel-top">
+            <button class="btn-sm" onclick="goToMenu()">← Menu</button>
+            <div class="panel-meta">
+              <span class="cat-pill" id="a-category-badge">—</span>
+              <span class="prog-text" id="a-progress">1/10</span>
+            </div>
+            <div></div>
+          </div>
+          <div class="panel-bottom">
+            <div class="q-text">
+              <span class="q-prefix">Odpowiedź:</span>
+              <strong class="q-name" id="answer-name">— — —</strong>
+            </div>
+            <div class="answer-btns">
+              <button class="btn-action" onclick="nextQuestion()">Następne →</button>
+              <button class="btn-sm" onclick="goToMenu()">Zmień</button>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /.quiz-panel -->
+
+      <!-- Mapa Leaflet — wspólna dla pytania i odpowiedzi -->
       <main class="map-area">
-        <div class="map-wrapper">
-          <img src="assets/maps/Europe_blank_map.png" class="map-img" alt="Mapa Europy" id="map-img-question" />
-        </div>
-      </main>
-
-    </div>
-  </div>
-
-  <!-- ===================== EKRAN: ODPOWIEDŹ ===================== -->
-  <div id="screen-answer" class="screen">
-    <div class="quiz-layout">
-
-      <div class="quiz-panel quiz-panel-answer">
-        <div class="panel-top">
-          <button class="btn-sm" onclick="goToMenu()">← Menu</button>
-          <div class="panel-meta">
-            <span class="cat-pill" id="a-category-badge">—</span>
-            <span class="prog-text" id="a-progress">1/10</span>
-          </div>
-          <div></div>
-        </div>
-        <div class="panel-bottom">
-          <div class="q-text">
-            <span class="q-prefix">Odpowiedź:</span>
-            <strong class="q-name" id="answer-name">— — —</strong>
-          </div>
-          <div class="answer-btns">
-            <button class="btn-action" onclick="nextQuestion()">Następne →</button>
-            <button class="btn-sm" onclick="goToMenu()">Zmień</button>
-          </div>
-        </div>
-      </div>
-
-      <main class="map-area">
-        <div class="map-wrapper" id="map-wrapper-answer">
-          <img src="assets/maps/Europe_blank_map.png" class="map-img" alt="Mapa Europy" id="map-img-answer" />
-          <div class="map-marker hidden" id="map-marker">
-            <div class="marker-pulse" id="marker-pulse"></div>
-            <div class="marker-dot"  id="marker-dot"></div>
-            <div class="marker-label" id="marker-label"></div>
-          </div>
-        </div>
+        <div id="quiz-map"></div>
       </main>
 
     </div>
