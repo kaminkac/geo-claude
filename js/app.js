@@ -166,8 +166,8 @@ function nextQuestion() {
 // POKAŻ ODPOWIEDŹ
 // ============================================================
 function showAnswer() {
-  placeMarker(state.current);
   showScreen('screen-answer');
+  requestAnimationFrame(() => placeMarker(state.current));
 }
 
 // ============================================================
