@@ -68,14 +68,12 @@ function initMap() {
     try {
       maptilersdk.config.apiKey = MAPTILER_KEY;
 
-      const mtDataviz = new L.MaptilerLayer({
-        style:    maptilersdk.MapStyle.DATAVIZ,
-        language: L.MaptilerLanguage.POLISH,
-      });
-      const mtStreets = new L.MaptilerLayer({
-        style:    maptilersdk.MapStyle.STREETS_V2,
-        language: L.MaptilerLanguage.POLISH,
-      });
+      // language=pl w URL stylu — pewniejsze niż opcja SDK
+      const styleDataviz = `https://api.maptiler.com/maps/dataviz/style.json?key=${MAPTILER_KEY}&language=pl`;
+      const styleStreets = `https://api.maptiler.com/maps/streets-v2/style.json?key=${MAPTILER_KEY}&language=pl`;
+
+      const mtDataviz = new L.MaptilerLayer({ style: styleDataviz });
+      const mtStreets = new L.MaptilerLayer({ style: styleStreets });
 
       baseMaps['PL: Konturowa'] = mtDataviz;
       baseMaps['PL: Ulice']     = mtStreets;
