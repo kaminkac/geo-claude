@@ -27,25 +27,56 @@ const EUROPE_ZOOM   = 4;
 function initMap() {
   if (map) return;
 
+  // ── Warstwy bazowe ───────────────────────────────────────────
+  const attrOSM   = '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
+  const attrCarto = '© <a href="https://carto.com/attributions">CARTO</a>';
+  const attrESRI  = 'Tiles © <a href="https://www.esri.com/">Esri</a>';
+  const attrTopo  = 'map data: © OpenStreetMap contributors, SRTM | ' +
+                    'style: © <a href="https://opentopomap.org">OpenTopoMap</a> (CC-BY-SA)';
+
+  const layerKonturowa = L.tileLayer(
+    'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',
+    { attribution: `${attrOSM} ${attrCarto}`, subdomains: 'abcd', maxZoom: 20 }
+  );
+
+  const layerFizyczna = L.tileLayer(
+    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Physical_Map/MapServer/tile/{z}/{y}/{x}',
+    { attribution: attrESRI, maxZoom: 8 }
+  );
+
+  const layerTopo = L.tileLayer(
+    'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+    { attribution: attrTopo, subdomains: 'abc', maxZoom: 17 }
+  );
+
+  // ── Nakładka etykiet ─────────────────────────────────────────
+  const overlayEtykiety = L.tileLayer(
+    'https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png',
+    { attribution: `${attrOSM} ${attrCarto}`, subdomains: 'abcd', maxZoom: 20, pane: 'overlayPane' }
+  );
+
+  // ── Mapa ─────────────────────────────────────────────────────
   map = L.map('quiz-map', {
-    center:         EUROPE_CENTER,
-    zoom:           EUROPE_ZOOM,
-    minZoom:        3,
-    maxZoom:        10,
-    zoomControl:    true,
+    center:             EUROPE_CENTER,
+    zoom:               EUROPE_ZOOM,
+    minZoom:            3,
+    maxZoom:            17,
+    zoomControl:        true,
     attributionControl: true,
+    layers:             [layerKonturowa],   // warstwa domyślna
   });
 
-  // CartoDB Positron bez etykiet — czysta mapa konturowa
-  L.tileLayer(
-    'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',
+  // ── Kontrolka warstw ─────────────────────────────────────────
+  L.control.layers(
     {
-      attribution:
-        '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors ' +
-        '© <a href="https://carto.com/attributions">CARTO</a>',
-      subdomains: 'abcd',
-      maxZoom: 20,
-    }
+      'Konturowa':     layerKonturowa,
+      'Fizyczna':      layerFizyczna,
+      'Topograficzna': layerTopo,
+    },
+    {
+      'Nazwy krajów': overlayEtykiety,
+    },
+    { position: 'topright', collapsed: true }
   ).addTo(map);
 }
 
