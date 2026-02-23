@@ -27,33 +27,63 @@ const EUROPE_ZOOM   = 4;
 function initMap() {
   if (map) return;
 
-  // ── Warstwy bazowe ───────────────────────────────────────────
+  // ── Atrybuty ─────────────────────────────────────────────────
   const attrOSM   = '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
   const attrCarto = '© <a href="https://carto.com/attributions">CARTO</a>';
   const attrESRI  = 'Tiles © <a href="https://www.esri.com/">Esri</a>';
   const attrTopo  = 'map data: © OpenStreetMap contributors, SRTM | ' +
                     'style: © <a href="https://opentopomap.org">OpenTopoMap</a> (CC-BY-SA)';
 
+  // ── Warstwy bazowe (bez klucza) ──────────────────────────────
   const layerKonturowa = L.tileLayer(
     'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',
     { attribution: `${attrOSM} ${attrCarto}`, subdomains: 'abcd', maxZoom: 20 }
   );
-
   const layerFizyczna = L.tileLayer(
     'https://server.arcgisonline.com/ArcGIS/rest/services/World_Physical_Map/MapServer/tile/{z}/{y}/{x}',
     { attribution: attrESRI, maxZoom: 8 }
   );
-
   const layerTopo = L.tileLayer(
     'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
     { attribution: attrTopo, subdomains: 'abc', maxZoom: 17 }
   );
 
-  // ── Nakładka etykiet ─────────────────────────────────────────
+  // ── Nakładka etykiet (CartoDB) ───────────────────────────────
   const overlayEtykiety = L.tileLayer(
     'https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png',
     { attribution: `${attrOSM} ${attrCarto}`, subdomains: 'abcd', maxZoom: 20, pane: 'overlayPane' }
   );
+
+  // ── Warstwy MapTiler z polskimi etykietami ───────────────────
+  let defaultLayer = layerKonturowa;
+  const baseMaps   = {};
+
+  const hasMaptiler = typeof maptilersdk !== 'undefined' &&
+                      typeof L.MaptilerLayer !== 'undefined' &&
+                      typeof MAPTILER_KEY === 'string' &&
+                      MAPTILER_KEY.trim().length > 0;
+
+  if (hasMaptiler) {
+    maptilersdk.config.apiKey = MAPTILER_KEY;
+
+    const mtDataviz = new L.MaptilerLayer({
+      style:    maptilersdk.MapStyle.DATAVIZ,
+      language: maptilersdk.Language.POLISH,
+    });
+    const mtStreets = new L.MaptilerLayer({
+      style:    maptilersdk.MapStyle.STREETS_V2,
+      language: maptilersdk.Language.POLISH,
+    });
+
+    baseMaps['PL: Konturowa']  = mtDataviz;
+    baseMaps['PL: Ulice']      = mtStreets;
+    defaultLayer = mtDataviz;
+  }
+
+  // Warstwy bez polskich etykiet zawsze dostępne jako fallback
+  baseMaps['Konturowa']     = layerKonturowa;
+  baseMaps['Fizyczna']      = layerFizyczna;
+  baseMaps['Topograficzna'] = layerTopo;
 
   // ── Mapa ─────────────────────────────────────────────────────
   map = L.map('quiz-map', {
@@ -63,19 +93,13 @@ function initMap() {
     maxZoom:            17,
     zoomControl:        true,
     attributionControl: true,
-    layers:             [layerKonturowa],   // warstwa domyślna
+    layers:             [defaultLayer],
   });
 
   // ── Kontrolka warstw ─────────────────────────────────────────
   L.control.layers(
-    {
-      'Konturowa':     layerKonturowa,
-      'Fizyczna':      layerFizyczna,
-      'Topograficzna': layerTopo,
-    },
-    {
-      'Nazwy krajów': overlayEtykiety,
-    },
+    baseMaps,
+    { 'Nazwy krajów': overlayEtykiety },
     { position: 'topright', collapsed: true }
   ).addTo(map);
 }
