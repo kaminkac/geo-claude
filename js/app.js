@@ -60,16 +60,22 @@ function initMap() {
 
   const hasMaptiler = typeof maptilersdk !== 'undefined' &&
                       typeof L.MaptilerLayer !== 'undefined' &&
+                      typeof L.MaptilerLanguage !== 'undefined' &&
                       typeof MAPTILER_KEY === 'string' &&
                       MAPTILER_KEY.trim().length > 0;
 
   if (hasMaptiler) {
     try {
-      maptilersdk.config.apiKey         = MAPTILER_KEY;
-      maptilersdk.config.primaryLanguage = maptilersdk.Language.POLISH;
+      maptilersdk.config.apiKey = MAPTILER_KEY;
 
-      const mtDataviz = new L.MaptilerLayer({ style: maptilersdk.MapStyle.DATAVIZ });
-      const mtStreets = new L.MaptilerLayer({ style: maptilersdk.MapStyle.STREETS_V2 });
+      const mtDataviz = new L.MaptilerLayer({
+        style:    maptilersdk.MapStyle.DATAVIZ,
+        language: L.MaptilerLanguage.POLISH,
+      });
+      const mtStreets = new L.MaptilerLayer({
+        style:    maptilersdk.MapStyle.STREETS_V2,
+        language: L.MaptilerLanguage.POLISH,
+      });
 
       baseMaps['PL: Konturowa'] = mtDataviz;
       baseMaps['PL: Ulice']     = mtStreets;
