@@ -60,7 +60,6 @@ function initMap() {
 
   const hasMaptiler = typeof maptilersdk !== 'undefined' &&
                       typeof L.MaptilerLayer !== 'undefined' &&
-                      typeof L.MaptilerLanguage !== 'undefined' &&
                       typeof MAPTILER_KEY === 'string' &&
                       MAPTILER_KEY.trim().length > 0;
 
