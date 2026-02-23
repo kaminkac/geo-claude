@@ -64,20 +64,24 @@ function initMap() {
                       MAPTILER_KEY.trim().length > 0;
 
   if (hasMaptiler) {
-    maptilersdk.config.apiKey = MAPTILER_KEY;
+    try {
+      maptilersdk.config.apiKey = MAPTILER_KEY;
 
-    const mtDataviz = new L.MaptilerLayer({
-      style:    maptilersdk.MapStyle.DATAVIZ,
-      language: maptilersdk.Language.POLISH,
-    });
-    const mtStreets = new L.MaptilerLayer({
-      style:    maptilersdk.MapStyle.STREETS_V2,
-      language: maptilersdk.Language.POLISH,
-    });
+      const mtDataviz = new L.MaptilerLayer({
+        style:    maptilersdk.MapStyle.DATAVIZ,
+        language: maptilersdk.Language.POLISH,
+      });
+      const mtStreets = new L.MaptilerLayer({
+        style:    maptilersdk.MapStyle.STREETS_V2,
+        language: maptilersdk.Language.POLISH,
+      });
 
-    baseMaps['PL: Konturowa']  = mtDataviz;
-    baseMaps['PL: Ulice']      = mtStreets;
-    defaultLayer = mtDataviz;
+      baseMaps['PL: Konturowa']  = mtDataviz;
+      baseMaps['PL: Ulice']      = mtStreets;
+      defaultLayer = mtDataviz;
+    } catch (e) {
+      console.warn('MapTiler init failed, using fallback layers.', e);
+    }
   }
 
   // Warstwy bez polskich etykiet zawsze dostępne jako fallback
